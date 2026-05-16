@@ -26,13 +26,13 @@ def performdct(melspec):
     return cepstrum[:,1:14]  # keep 2nd to 13th coefficients
 
 MFCCS = performdct(melspectrum)
-feature_vector = MFCCS.mean(axis=0)
-mfcc_norm = (MFCCS - MFCCS.mean(axis=0)) / MFCCS.std(axis=0)
+
 
 if __name__ == "__main__":
 
     #print MFCCS
-    
+    feature_vector = MFCCS.mean(axis=0)
+    mfcc_norm = (MFCCS - MFCCS.mean(axis=0)) / MFCCS.std(axis=0)
    
     frame_number = 40
     print(f"The UnNormalized MFCCs value for frame {frame_number} is",MFCCS[frame_number,:])

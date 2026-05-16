@@ -7,9 +7,7 @@ import DCT
 DATASET_FILE = "mfcc_dataset.csv"
 
 
-# ==========================================================
 # EXTRACT MFCC FEATURE VECTOR (13-D)
-# ==========================================================
 
 def extract_feature_vector():
 
@@ -21,9 +19,7 @@ def extract_feature_vector():
     return feature_vector.astype(np.float32)
 
 
-# ==========================================================
 # CREATE DATASET FILE
-# ==========================================================
 
 def initialize_dataset():
 
@@ -39,9 +35,7 @@ def initialize_dataset():
     print("Dataset created successfully.")
 
 
-# ==========================================================
 # ADD SAMPLE
-# ==========================================================
 
 def add_sample(label):
 
@@ -59,9 +53,7 @@ def add_sample(label):
     print("Sample added successfully.")
 
 
-# ==========================================================
 # MAIN
-# ==========================================================
 
 if __name__ == "__main__":
 
