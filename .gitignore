@@ -1,0 +1,69 @@
+
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# =========================
+# Virtual Environments
+# =========================
+venv/
+env/
+tf_env/
+mfcc_env/
+.venv/
+
+# =========================
+# Jupyter Notebook
+# =========================
+.ipynb_checkpoints/
+
+# =========================
+# Dataset (IMPORTANT - heavy files)
+# =========================
+*.csv
+*.npy
+*.npz
+
+# If you want to KEEP dataset in git, remove this line for csv
+
+# =========================
+# PyTorch / ML Models (VERY HEAVY)
+# =========================
+*.pth
+*.pt
+*.h5
+*.onnx
+
+# Saved scalers / encoders
+*.pkl
+*.joblib
+
+# =========================
+# Logs / training outputs
+# =========================
+runs/
+logs/
+checkpoints/
+
+# =========================
+# OS Files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# IDE (VS Code)
+# =========================
+.vscode/
+.idea/
+
+# =========================
+# Audio files (optional - heavy)
+# =========================
+*.wav
+*.mp3
+*.flac
