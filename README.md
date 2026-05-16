@@ -1,70 +1,110 @@
 # MFCCs & Speech Recognition From Scratch
 
-This project demonstrates **MFCC (Mel-Frequency Cepstral Coefficients) calculation from scratch** and uses a **K-Nearest Neighbors (KNN) algorithm** to recognize spoken letters or words.
+This project demonstrates **MFCC (Mel-Frequency Cepstral Coefficients) computation from scratch** and uses a **PyTorch-based neural network** for speech recognition.
+
+The system includes:
+- Custom MFCC feature extraction pipeline (FFT → Mel Filter Bank → DCT)
+- Dataset creation and management
+- Neural network training using PyTorch
+- Prediction of unknown audio samples
 
 ---
 
-## Required Libraries
+## Project Overview
 
-Make sure you have the following Python libraries installed:
-
-- `soundfile`
-- `numpy`
-- `matplotlib`
-- `math`
+Audio → FFT → Mel Filter Bank → Log Energies → DCT → MFCC (13-D) → Dataset Manager → PyTorch Model → Softmax Classification
 
 ---
 
 ## File Descriptions
 
-### 1. `FFT.py`
-This is the base code of the program. It performs:
-
-- Takes the input discrete signal from the `.wav` file named `my_recording.wav`.
-- Applies **pre-emphasis** to the signal.
-- Frames the signal and calculates hop size.
-- Applies a **Hanning window** on each frame.
-- Performs **FFT** on each windowed frame.
-
-### 2. `melFilterBank.py`
-Based on `FFT.py`, this file performs:
-
-- Conversion from Hz to Mel scale.
-- Taking natural log on Mel scale.
-- Converting log Mel scale back to Hz.
-- Converting frequency to FFT bins.
-- Implements **triangular filter bank** using the converted FFT bins (26 filters total).
-- Calculates Mel scale energy for each filter.
-
-### 3. `DCT.py`
-Final step for MFCC calculation:
-
-- Applies **Discrete Cosine Transform (DCT)** on each frame's Mel scale energy (26 values).
-- Only the first 13 values (excluding the 0th) are used.
-- Computes the **feature vector** by taking the mean of each coefficient across all frames.
-
-### 4. `KNNForMFCCs.py`
-A KNN algorithm customized for MFCC-based speech recognition:
-
-- Takes the calculated feature vector of `my_recording.wav` as input.
-- `C` is a 2D vector storing known MFCCs, with the first element of each row being the corresponding letter/word.
-- `computeDistance` calculates the distance between the unknown input MFCCs and the known MFCCs in `C`.
-- Returns the label if the nearest MFCC is within a threshold, otherwise returns `unknown`.
+### 1. FFT.py
+Handles audio preprocessing:
+- Loads WAV audio file
+- Applies pre-emphasis filtering
+- Frames signal into short segments
+- Applies Hanning window
+- Computes FFT per frame
 
 ---
 
-## Running the Program
+### 2. melFilterBank.py
+Performs frequency transformation:
+- Converts Hz to Mel scale
+- Builds triangular filter banks
+- Computes log Mel energies
+- Maps frequency bins to FFT spectrum
 
-1. Record your sound using `RecordYourVoice.py`. **Do not alter the recording length** if you want to use the provided MFCC values.
-2. Run `KNNForMFCCs.py` to recognize the letter/word spoken in `my_recording.wav`.
-3. Run `DCT.py` to plot the **heat map of the MFCCs**.
-4. Run `FFT.py` to plot the **time and frequency domain representation** of the windowed frame.
-5. Run `melFilterBank.py` to plot the **MFCCs of a frame**.
+---
+
+### 3. DCT.py
+Extracts MFCC features:
+- Applies Discrete Cosine Transform (DCT)
+- Keeps 13 MFCC coefficients (excluding 0th)
+- Produces frame-wise MFCC matrix
+- Computes feature vector (mean across frames)
+
+---
+
+### 4. dataset_manager.py
+Handles dataset creation:
+- Extracts MFCC features from DCT.py
+- Stores labeled samples in mfcc_dataset.csv
+- Ensures consistent feature formatting for training
+
+---
+
+### 5. mfcc_train.ipynb
+Jupyter Notebook for training:
+- Loads dataset
+- Encodes labels
+- Normalizes MFCC features
+- Trains PyTorch neural network
+- Evaluates model performance
+- Saves trained model and preprocessors
+
+---
+
+### 6. KNNForMFCCs.py (Legacy)
+Old KNN-based classifier replaced by neural network for better accuracy and scalability.
+
+---
+
+## Model Inference
+
+Audio → MFCC extraction → Normalization → PyTorch model → Softmax → Label
+
+---
+
+## Running the Project
+
+1. Record audio using the provided recording script.
+2. Add labeled data using dataset_manager.py.
+3. Train the model using mfcc_train.ipynb.
+4. Run inference on unknown audio samples using the trained model.
+
+---
+
+## System Requirements
+
+- Python 3.11
+- All dependencies are listed in requirements.txt
+
+Install dependencies:
+
+pip install -r requirements.txt
 
 ---
 
 ## Notes
 
-- The known MFCC values are calculated using the my voice and recorded in a sound environment with no background noise. MFCCs vary with the environment, so for better results, **record your own audio**, calculate MFCCs, and add them to the vector `C` with the first element as the letter/word.
-- Known MFCCs are recorded for a **1-second audio**, with frames starting after 0.5 seconds. Altering the audio length will change the MFCC values, so keep the audio 1 second if you want to use the provided values. Otherwise, calculate MFCCs yourself.
-- Once you record your own audio and add the MFCCs to the known database value then you can use the program to recognize the letter/word in the next run.
+- MFCC extraction is fully custom (no external MFCC libraries used).
+- Consistent audio length improves model accuracy.
+- Same preprocessing must be used during training and inference.
+- Neural network replaces KNN for better generalization.
+
+---
+
+## License
+
+This project is for educational and research purposes only.
