@@ -25,17 +25,27 @@ def performdct(melspec):
         cepstrum[i,:] = dct(melspec[i,:], type=2, norm='ortho')
     return cepstrum[:,1:14]  # keep 2nd to 13th coefficients
 
-MFCCS = performdct(melspectrum)
+def get_mfcc():
+
+    melspectrum = np.zeros((melFilterBank.FFT.total_frames,
+                            melFilterBank.NumberOfFilter), dtype=float)
+
+    for i in range(melFilterBank.FFT.total_frames):
+        melspectrum[i,:] = melFilterBank.logmelspec(i)
+
+    MFCCS = performdct(melspectrum)
+
+    return MFCCS
 
 
 if __name__ == "__main__":
 
     #print MFCCS
-    feature_vector = MFCCS.mean(axis=0)
-    mfcc_norm = (MFCCS - MFCCS.mean(axis=0)) / MFCCS.std(axis=0)
+    feature_vector = get_mfcc().mean(axis=0)
+    mfcc_norm = (get_mfcc() - get_mfcc().mean(axis=0)) / get_mfcc().std(axis=0)
    
     frame_number = 40
-    print(f"The UnNormalized MFCCs value for frame {frame_number} is",MFCCS[frame_number,:])
+    print(f"The UnNormalized get_mfcc() value for frame {frame_number} is",get_mfcc()[frame_number,:])
     # print(f"Total frames {melFilterBank.FFT.total_frames}")
 
     

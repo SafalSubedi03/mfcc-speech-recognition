@@ -11,7 +11,7 @@ DATASET_FILE = "mfcc_dataset.csv"
 
 def extract_feature_vector():
 
-    MFCCS = DCT.MFCCS
+    MFCCS = DCT.get_mfcc()
 
     # Mean over time frames → fixed-size vector
     feature_vector = MFCCS.mean(axis=0)
