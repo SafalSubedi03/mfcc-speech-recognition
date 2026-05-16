@@ -85,7 +85,8 @@ def logmelspec(frame_number,IMel_binsA=IMel_bins,fft_binsA=FFTbins):
 
 
 if __name__ == "__main__":
-    frame_numbers = 10
+    
+    frame_numbers = 1
     logmag = logmelspec(frame_numbers,IMel_bins,FFTbins)
     
     plt.stem(np.arange(NumberOfFilter),logmag)

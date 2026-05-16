@@ -8,6 +8,7 @@ import melFilterBank
 import numpy as np
 from scipy.fft import dct
 import matplotlib.pyplot as plt
+import FFT, melFilterBank
 
 
 #2D array of melspecturm with energy values form each triangular mel filter for each frame 
@@ -26,6 +27,7 @@ def performdct(melspec):
 
 MFCCS = performdct(melspectrum)
 feature_vector = MFCCS.mean(axis=0)
+mfcc_norm = (MFCCS - MFCCS.mean(axis=0)) / MFCCS.std(axis=0)
 
 if __name__ == "__main__":
 
@@ -37,7 +39,7 @@ if __name__ == "__main__":
     # print(f"Total frames {melFilterBank.FFT.total_frames}")
 
     
-    mfcc_norm = (MFCCS - MFCCS.mean(axis=0)) / MFCCS.std(axis=0)
+    
     
     print(f"Normalized MFCCs for frame {frame_number}:")
     print(mfcc_norm[frame_number, :])

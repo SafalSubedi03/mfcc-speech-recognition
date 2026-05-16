@@ -23,6 +23,9 @@ mfccs = librosa.feature.mfcc(
 
 #Remove 0th coefficient
 mfccs_no0 = mfccs[1:n_mfcc+1, :]  # shape: (13, frames)
+feature_vector = mfccs_no0.mean(axis=1)
+
+print("The mfcc form librosa are: ",feature_vector)
 
 #Create time axis (in seconds)
 frames = mfccs_no0.shape[1]
