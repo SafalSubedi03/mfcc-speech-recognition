@@ -3,7 +3,7 @@ import sounddevice as sd
 import soundfile as sf
 
 # Set parameters
-duration = 1  # seconds to record
+duration = 2.5  # seconds to record
 filename = 'my_recording.wav'
 sampling_rate = 44100  
 

@@ -40,10 +40,11 @@ hop_size = int(sampling_rate * hop_length)
 frame_size = int(sampling_rate * frame_length)
 total_frames = int((len(x) - frame_size) / hop_size)
 print("Total Frames ",total_frames)
+
+
 def frames(x,start):
     next_frame = start+hop_size
-    current_frame_val =  x[start:start+frame_size]
-    
+    current_frame_val =  x[start:start+frame_size]    
     return next_frame, current_frame_val
 
 
@@ -62,7 +63,9 @@ def Wfft(start = 0):
         start,windowed_frame= Windowing(x,start)
 
         X[i,:] = np.fft.fft(windowed_frame)[:frame_size//2] #positive frequencies only
-       
+        
+    print("fft bins size",np.size(np.abs(X))) 
+    
     return (np.abs(X)) #We are interesed only in the real part 
 
 

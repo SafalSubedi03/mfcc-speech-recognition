@@ -40,7 +40,17 @@ IM = np.zeros(len(M))
 for i in range (len(M)):
     IM[i] = IMelScale(M[i])
 
-FFTbins = FFT.Wfft()
+FFT_WHOLE_AUDIO = FFT.Wfft()
+
+def selectiveFrequencyBins(start,framesToCompute):    
+    if(start + framesToCompute > FFT.total_frames):
+        print("Not enough frames to compute, returning remaining frames")
+        return FFT_WHOLE_AUDIO[start:FFT.total_frames,:], FFT.total_frames
+    return FFT_WHOLE_AUDIO[start:start+framesToCompute,:], start+framesToCompute    
+    
+
+
+# FFTbins,nextFrameToCompute = selectiveFrequencyBins()
 #After FFT we have fourier transform coefficients as bin index(k). It is neccessary to map the mel scale frequencies 
 #into the bin index (k) using the formula k = (N/fs) * freq.
 
@@ -67,7 +77,7 @@ IMel_bins = mapfreq_fftbin_index(IM)
 
 
 #mel scale energy calculation, return the log of melenergy list one form each triangular filter
-def logmelspec(frame_number,IMel_binsA=IMel_bins,fft_binsA=FFTbins):
+def logmelspec(frame_number,fft_binsA,IMel_binsA=IMel_bins):
     melenergy = np.zeros(NumberOfFilter)
     for i in range(NumberOfFilter):
         filtered_energy = 0
@@ -85,17 +95,26 @@ def logmelspec(frame_number,IMel_binsA=IMel_bins,fft_binsA=FFTbins):
 
 
 if __name__ == "__main__":
-    
-    frame_numbers = 1
-    logmag = logmelspec(frame_numbers,IMel_bins,FFTbins)
-    
-    plt.stem(np.arange(NumberOfFilter),logmag)
-    plt.title(f"Mel Spectrum of frame {frame_numbers}")
-    plt.xlabel("Mel Filter Index energy value form each melband triangular filter")
+
+    # choose frames dynamically
+    FFTbins, nextFrameToCompute = selectiveFrequencyBins(
+        start=0,
+        framesToCompute=10
+    )
+
+    frame_number = 1
+
+    logmag = logmelspec(
+        frame_number,
+        FFTbins
+    )
+
+    plt.stem(np.arange(NumberOfFilter), logmag)
+
+    plt.title(f"Mel Spectrum of frame {frame_number}")
+    plt.xlabel("Mel Filter Index")
     plt.ylabel("Log Magnitude in dB")
+
     plt.grid(True)
     plt.show()
-    
-   
-    #plots
 

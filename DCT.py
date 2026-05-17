@@ -8,30 +8,53 @@ import melFilterBank
 import numpy as np
 from scipy.fft import dct
 import matplotlib.pyplot as plt
-import FFT, melFilterBank
 
 
-#2D array of melspecturm with energy values form each triangular mel filter for each frame 
-melspectrum =  np.zeros((melFilterBank.FFT.total_frames,melFilterBank.NumberOfFilter), dtype=float)
+# Create mel spectrum from selected FFT bins
+def compute_melspectrum(fftbins):
 
-for i in range(melFilterBank.FFT.total_frames):
-    melspectrum[i,:] = melFilterBank.logmelspec(i)
+    total_frames = fftbins.shape[0]
+
+    melspectrum = np.zeros(
+        (total_frames, melFilterBank.NumberOfFilter),
+        dtype=float
+    )
+
+    for i in range(total_frames):
+
+        melspectrum[i,:] = melFilterBank.logmelspec(
+            frame_number=i,
+            fft_binsA=fftbins
+        )
+
+    return melspectrum
 
 
+# Perform DCT
 def performdct(melspec):
-    
-    cepstrum = np.zeros((melFilterBank.FFT.total_frames, melFilterBank.NumberOfFilter), dtype=float)
-    for i in range(melFilterBank.FFT.total_frames):
-        cepstrum[i,:] = dct(melspec[i,:], type=2, norm='ortho')
-    return cepstrum[:,1:14]  # keep 2nd to 13th coefficients
 
-def get_mfcc():
+    total_frames = melspec.shape[0]
 
-    melspectrum = np.zeros((melFilterBank.FFT.total_frames,
-                            melFilterBank.NumberOfFilter), dtype=float)
+    cepstrum = np.zeros(
+        (total_frames, melFilterBank.NumberOfFilter),
+        dtype=float
+    )
 
-    for i in range(melFilterBank.FFT.total_frames):
-        melspectrum[i,:] = melFilterBank.logmelspec(i)
+    for i in range(total_frames):
+
+        cepstrum[i,:] = dct(
+            melspec[i,:],
+            type=2,
+            norm='ortho'
+        )
+
+    return cepstrum[:,1:14]
+
+
+# Main MFCC function
+def get_mfcc(fftbins):
+
+    melspectrum = compute_melspectrum(fftbins)
 
     MFCCS = performdct(melspectrum)
 
@@ -40,47 +63,82 @@ def get_mfcc():
 
 if __name__ == "__main__":
 
-    #print MFCCS
-    feature_vector = get_mfcc().mean(axis=0)
-    mfcc_norm = (get_mfcc() - get_mfcc().mean(axis=0)) / get_mfcc().std(axis=0)
-   
+    # Select frames dynamically
+    FFTbins, nextFrame = melFilterBank.selectiveFrequencyBins(
+        start=0,
+        framesToCompute=47
+    )
+
+    MFCCS = get_mfcc(FFTbins)
+
+    # Normalize
+    mfcc_norm = (
+        (MFCCS - MFCCS.mean(axis=0))
+        / MFCCS.std(axis=0)
+    )
+
+    feature_vector = MFCCS.mean(axis=0)
+
     frame_number = 40
-    print(f"The UnNormalized get_mfcc() value for frame {frame_number} is",get_mfcc()[frame_number,:])
-    # print(f"Total frames {melFilterBank.FFT.total_frames}")
 
-    
-    
-    
-    print(f"Normalized MFCCs for frame {frame_number}:")
-    print(mfcc_norm[frame_number, :])
-    print("Featured_Vector: ",feature_vector)
+    print(
+        f"Unnormalized MFCC for frame {frame_number}:"
+    )
 
-   #plot heat map to visualize       
-    MFCCS = performdct(melspectrum)  # shape: (total_frames × 13)
-    time_axis = np.arange(mfcc_norm.shape[0]) * melFilterBank.FFT.hop_length 
-    coeff_axis = np.arange(1, mfcc_norm.shape[1]+1)
+    print(MFCCS[frame_number,:])
 
-    fig,axs = plt.subplots(1,2,figsize = (12,6))
-    pcm = axs[0].pcolormesh(time_axis, coeff_axis, mfcc_norm.T, shading='auto', cmap='viridis') 
-    axs[0].pcolormesh(time_axis, coeff_axis, mfcc_norm.T, shading='auto', cmap='viridis')
+    print(f"\nNormalized MFCCs for frame {frame_number}:")
+    print(mfcc_norm[frame_number,:])
+    print("\nFeature Vector:")
+    print(feature_vector)
+
+
+    # Plot heatmaps
+
+    time_axis = np.arange(
+        mfcc_norm.shape[0]
+    ) * melFilterBank.FFT.hop_length
+
+    coeff_axis = np.arange(
+        1,
+        mfcc_norm.shape[1] + 1
+    )
+
+    fig, axs = plt.subplots(1,2, figsize=(12,6))
+
+
+    # Normalized MFCC
+    pcm = axs[0].pcolormesh(
+        time_axis,
+        coeff_axis,
+        mfcc_norm.T,
+        shading='auto',
+        cmap='viridis'
+    )
+
     axs[0].set_xlabel('Time [s]')
     axs[0].set_ylabel('MFCC Coefficient')
-    axs[0].set_title('Feature MFCCs')
-    fig.colorbar(pcm, ax=axs[0], label='Magnitude')
+    axs[0].set_title('Normalized MFCCs')
 
-    time_axis = np.arange(MFCCS.shape[0]) * melFilterBank.FFT.hop_length 
-    coeff_axis = np.arange(1, MFCCS.shape[1]+1)
+    fig.colorbar(pcm, ax=axs[0])
 
-    pcm = axs[1].pcolormesh(time_axis, coeff_axis, MFCCS.T, shading='auto', cmap='viridis') 
-    axs[1].pcolormesh(time_axis, coeff_axis, MFCCS.T, shading='auto', cmap='viridis')
+
+    # Raw MFCC
+    pcm = axs[1].pcolormesh(
+        time_axis,
+        coeff_axis,
+        MFCCS.T,
+        shading='auto',
+        cmap='viridis'
+    )
+
     axs[1].set_xlabel('Time [s]')
     axs[1].set_ylabel('MFCC Coefficient')
-    axs[1].set_title('MFCC Heatmap without Normalization')
-    fig.colorbar(pcm, ax=axs[1], label='Magnitude')
+    axs[1].set_title('Raw MFCCs')
+
+    fig.colorbar(pcm, ax=axs[1])
+
     plt.show()
-
-
-
 
 
 
